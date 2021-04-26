@@ -42,6 +42,23 @@
   command: "/usr/bin/python3.8 -m venv /home/{{ ansible_user }}/application/venv"
 - name: Install requirements
   pip: 
-    requirements: "/home/{{ ansible_user }}/application/requirements.txt"
-    virtualenv: "/home/{{ ansible_user }}/application/venv"
+    requirements: "{{ path_application }}/requirements.txt"
+    virtualenv: "{{ path_application }}/venv"
     virtualenv_python: python3.8
+- name: 'Django migrate default'
+  command: "venv/bin/python manage.py migrate"
+  args:
+    chdir: "{{ path_application }}"
+- name: 'Django migrate application'
+  command: "venv/bin/python manage.py migrate --run-syncdb core"
+  args:
+    chdir: "{{ path_application }}"
+- name: 'Django createsuperuser'
+  environment:
+    DJANGO_SUPERUSER_PASSWORD: "{{ django_password }}"
+    DJANGO_SUPERUSER_USERNAME: "{{ django_user }}"
+    DJANGO_SUPERUSER_EMAIL: "{{ django_email }}"
+  command: "venv/bin/python manage.py createsuperuser --no-input"
+  ignore_errors: yes
+  args:
+    chdir: "{{ path_application }}"

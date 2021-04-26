@@ -1,0 +1,5 @@
+- name: 'Tox Coverage'
+  command: "venv/bin/tox"
+  args:
+    chdir: "/home/{{ ansible_user }}/application"
+   

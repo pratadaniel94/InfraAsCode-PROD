@@ -1,0 +1,47 @@
+- name: 'Criar socket gunicorn'
+  copy:
+    src: configs/gunicorn.socket
+    dest: /etc/systemd/system/gunicorn.socket
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+- name: 'Criar service gunicorn'
+  template:
+    src: configs/gunicorn.service.j2
+    dest: /etc/systemd/system/gunicorn.service
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+- name: Start service gunicorn, if not started
+  service:
+    name: gunicorn
+    state: started
+  become: yes
+- name: 'Ativa socket gunicorn'
+  command: curl --unix-socket /run/gunicorn.sock localhost
+  become: yes
+- name: 'Instalar Nginx'
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600 #1 hora
+    name: [ "nginx" ]
+    state: latest
+  become: yes
+- name: 'Copiar configurações para nginx' 
+  template:
+    src: configs/website.j2
+    dest: /etc/nginx/sites-enabled/website
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify:
+    - restart gunicorn
+    - restart nginx
+- name: Start service nginx, if not started
+  service:
+    name: nginx
+    state: started
+  become: yes

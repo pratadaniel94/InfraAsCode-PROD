@@ -1,0 +1,33 @@
+---
+- name: 'Instalar MySQL Server'
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600 #1 hora
+    name: [ "mysql-server-5.7", "python3-mysqldb" ]
+    state: latest
+  become: yes
+- name: 'Criar Database'
+  mysql_db:
+    name: "{{ db_name }}"
+    login_user: root
+    state: present
+  become: yes
+- name: 'Criar usuario no MySQL'
+  mysql_user:
+    login_user: root
+    name: "{{ db_username }}"
+    password: "{{ db_password }}"
+    priv: "{{ db_name }}.*:ALL"
+    host: '%'
+    state: present
+  become: yes
+- name: 'Copiar arquivo mysqld.cnf'
+  copy:
+    src: configs/mysqld.cnf
+    dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+    owner: root
+    group: root
+    mode: 0644
+  become: yes
+  notify:
+    - restart mysql

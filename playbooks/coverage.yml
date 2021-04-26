@@ -1,0 +1,4 @@
+--- 
+- hosts: AWS_lighsail
+  roles:
+    - coverage

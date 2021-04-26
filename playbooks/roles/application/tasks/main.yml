@@ -1,0 +1,47 @@
+---
+- name: 'Instalar python interpret'
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600 #1 hora
+    name: "python3.8"
+    state: latest
+  become: yes
+- name: 'Instalar python pip'
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600 #1 hora
+    name: "python3-pip"
+    state: latest
+  become: yes
+- name: 'Instalar python venv'
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600 #1 hora
+    name: "python3.8-venv"
+    state: latest
+  become: yes
+- name: 'Instalar python dev'
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600 #1 hora
+    name: "python3.8-dev"
+    state: latest
+  become: yes
+- name: 'Instalar libmysqlclient-dev'
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600 #1 hora
+    name: "libmysqlclient-dev"
+    state: latest
+  become: yes
+- name: 'Clone Repositorio da aplicação'
+  git:
+    repo: "{{ repo_application }}"
+    dest: ~/application
+- name: 'Criando virtualenv'
+  command: "/usr/bin/python3.8 -m venv /home/{{ ansible_user }}/application/venv"
+- name: Install requirements
+  pip: 
+    requirements: "/home/{{ ansible_user }}/application/requirements.txt"
+    virtualenv: "/home/{{ ansible_user }}/application/venv"
+    virtualenv_python: python3.8
